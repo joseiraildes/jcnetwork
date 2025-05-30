@@ -11,3 +11,5 @@ async function getIP() {
         return null;
     }
 }
+
+module.exports = getIP;
