@@ -1,0 +1,23 @@
+<div class="container">
+    <div class="row align-items-center justify-content-center">
+        <div class="col-md-6 card p-4 mt-5 shadow">
+            <h1 class="text-center shadow rounded mb-3">Login</h1>
+            <form method="POST" action="/login">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="username" name="username" required>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+                <div class="mb-2 text-small">
+                    <small><a href="/register" class="text-muted">Não tem uma conta? Registre-se aqui</a></small>
+                </div>
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-dark"><strong>Acessar</strong></button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
