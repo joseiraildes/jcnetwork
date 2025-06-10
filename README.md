@@ -29,7 +29,7 @@ Algumas funcionalidades básicas mas que fazem bastante diferença.
 ## Contribuições para o projeto
 Você pode contribuir para o projeto clonando o repositório do Github na sua área de trabalho.
 
-- Clone o repositório
+- Clonando o repositório
 ```sh
 
 git clone https://github.com/joseiraildes/jcnetwork.git
