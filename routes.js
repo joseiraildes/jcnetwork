@@ -200,15 +200,24 @@ app.get("/@:username", async(req, res)=>{
                 address: ip
               }
          })
+
+
          let menu = "";
          let editProfile = "";
+         let changeImage = "";
+
+
          if(!currentUser || currentUser === null){
+            changeImage = ''
             editProfile = ''
              menu = `
                 <button class="btn btn-sm" style="margin-right: 3px;" onclick="location.href='/register'"><strong>Registrar</strong></button>
                 <button class="btn btn-sm" onclick="location.href='/login'"><strong>Login</strong></button>
              `
             }else{
+            changeImage = `
+                   <button class="btn btn-sm" style="margin-right: 3px;" onclick="location.href='/change-image'"><strong>Alterar Imagem</strong></button>
+               `
                editProfile = `
                    <button class="btn btn-sm" style="margin-right: 3px;" onclick="location.href='/edit-profile'"><strong>Editar Perfil</strong></button>
                `
@@ -222,6 +231,7 @@ app.get("/@:username", async(req, res)=>{
               user: userProfile[0],
               menu,
               editProfile,
+              chang
          })
    }
 })
