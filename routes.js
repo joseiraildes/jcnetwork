@@ -4,12 +4,17 @@ const hbs = require("express-handlebars")
 const path = require("path");
 const User = require("./models/User.js");
 const getIP = require("./funcs/ ip.js");
+const formatName = require("./funcs/name.js");
+const date = require("./date/config.js");
+const { marked } = require("marked");
+const connect = require("./mysql/config.js");
 
 
 app.engine('hbs', hbs.engine({ extname: ".hbs" }));
 app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname + "/views"));
-
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 app.get("/", async(req, res)=>{
     const ip = await getIP()
     const user = await User.findOne({
@@ -27,10 +32,10 @@ app.get("/", async(req, res)=>{
         })
     }else{
         const menu = `
-            <button class="btn btn-sm btn-dark" onclick="location.href='/@${user.username}'"><strong>Profile</strong></button>
-            <button class="btn btn-sm btn-dark" onclick="location.href='/logout'"><strong>Logout</strong></button>
+            <button class="btn btn-sm text-decoration-underline" style="margin-right: 3px;" onclick="location.href='/@${user.username}'"><strong>${user.username}</strong></button>
+            <button class="btn btn-sm text-danger text-decoration-underline" onclick="location.href='/logout'"><strong>Logout</strong></button>
         `
-        return res.status(200).render("index", {
+        return res.status(200).render("home", {
             menu,
             user
         })
@@ -57,6 +62,55 @@ app.get("/login", async(req, res)=>{
     }
 })
 
+app.post("/login", async(req, res)=>{
+    const { username, password } = req.body;
+    const ip = await getIP()
+    const user = await User.findOne({
+        where: {
+            address: ip
+        }
+    })
+
+    if(!user || user === null){
+        if(!username || !password){
+            return res.status(400).render("login", {
+                message: `
+                <div class="alert alert-danger" role="alert">
+                    Por favor, preencha todos os campos corretamente.
+                </div>
+                `
+            })
+        }
+        const userLogin = await User.findOne({
+            where: {
+                username: formatName(username),
+                password
+            }
+        })
+        if(!userLogin || userLogin === null){
+            return res.status(401).render("login", {
+                message: `
+                <div class="alert alert-danger" role="alert">
+                    Usuário ou senha incorretos.
+                </div>
+                `
+            })
+        }else{
+            const update = await User.update({
+                address: ip
+            }, {
+                where: {
+                    id: userLogin.id
+                }
+            })
+            return res.status(200).redirect("/")
+        }
+    }
+    else{
+        return res.redirect("/")
+    }
+})
+
 app.get("/register", async(req, res)=>{
     const ip = await getIP()
     const user = await User.findOne({
@@ -75,6 +129,101 @@ app.get("/register", async(req, res)=>{
     }else{
         return res.status(200).redirect("/")
     }
+})
+app.post("/register", async(req, res)=>{
+    const { username, password, email } = req.body;
+    const ip = await getIP()
+    const user = await User.findOne({
+        where: {
+            address: ip
+        }
+    })
+    if(!user || user === null){
+        if(!username || !password){
+            return res.status(400).render("register", {
+                message: `
+                <div class="alert alert-danger" role="alert">
+                    Por favor, preencha todos os campos.
+                </div>
+                `
+            })
+        }
+        const newUser = await User.create({
+            username: formatName(username),
+            password,
+            email,
+            datetime: date,
+            biography: marked("This user has not set a biography yet."),
+            address: ip
+        })
+        return res.status(201).redirect("/login")
+    }else{
+        return res.redirect("/")
+    }
+})
+
+app.get("/logout", async(req, res)=>{
+    const ip = await getIP()
+    const user = await User.findOne({
+        where: {
+            address: ip
+        }
+    })
+    if(!user || user === null){
+        return res.status(404).redirect("/login")
+    }else{
+        const update = await User.update({
+            address: null
+        }, {
+            where: {
+                id: user.id
+            }
+        })
+        return res.status(200).redirect("/login")
+    }
+})
+
+app.get("/@:username", async(req, res)=>{
+    const mysql = await connect()
+   const { username } = req.params;
+   const user = await User.findOne({
+       where: {
+           username: formatName(username)
+       }
+   })
+   if(!user || user === null){
+       return res.redirect("/login")
+   }else{
+         const ip = await getIP()
+         const currentUser = await User.findOne({
+              where: {
+                address: ip
+              }
+         })
+         let menu = "";
+         let editProfile = "";
+         if(!currentUser || currentUser === null){
+            editProfile = ''
+             menu = `
+                <button class="btn btn-sm" style="margin-right: 3px;" onclick="location.href='/register'"><strong>Registrar</strong></button>
+                <button class="btn btn-sm" onclick="location.href='/login'"><strong>Login</strong></button>
+             `
+            }else{
+               editProfile = `
+                   <button class="btn btn-sm" style="margin-right: 3px;" onclick="location.href='/edit-profile'"><strong>Editar Perfil</strong></button>
+               `
+            menu = `
+                <button class="btn btn-sm text-decoration-underline" style="margin-right: 3px;" onclick="location.href='/@${currentUser.username}'"><strong>${currentUser.username}</strong></button>
+                <button class="btn btn-sm text-danger text-decoration-underline" onclick="location.href='/logout'"><strong>Logout</strong></button>
+            `
+         }
+         const userProfile = await mysql.query(`SELECT * FROM Users WHERE id = ?`, [user.id])
+         return res.status(200).render("profile", {
+              user: userProfile[0],
+              menu,
+              editProfile,
+         })
+   }
 })
 
 app.listen(3000, (err)=>{
