@@ -1,0 +1,18 @@
+{{#each user}}
+<div class="row p-3">
+    <div class="col-md-6 offset-md-3">
+        <div class="card">
+            <div class="card-header text-center bg-primary text-white">
+                <h5>
+                    Perfil de {{this.username}}
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="img-card-top">
+                    <img src="{{this.avatar}}" class="img-fluid" alt="Avatar de {{this.username}}">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{/each}}
