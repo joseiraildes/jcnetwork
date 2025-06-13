@@ -8,11 +8,19 @@
                 </h5>
             </div>
             <div class="card-body">
-                <div class="img-card-top">
-                    <img src="{{this.avatar}}" class="img-fluid" alt="Avatar de {{this.username}}">
-                </div>
+                {{#if image}}
+                    <div class="img-card-top">
+                        <img src="{{this.image}}" class="img-fluid" alt="Imagem de {{this.username}}">
+                    </div>
+                {{else}}
+                    <div class="img-card-top">
+                        <img src="/images/default-profile.jpg" class="img-fluid" alt="Imagem de {{this.username}}">
+                    </div>
+                {{/if}}
             </div>
         </div>
     </div>
 </div>
 {{/each}}
+{{{changeImage}}}
+{{{editProfile}}}
