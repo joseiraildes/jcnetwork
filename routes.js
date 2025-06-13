@@ -15,6 +15,9 @@ app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname + "/views"));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+app.use(express.static(path.join(__dirname, "images")));
+
 app.get("/", async(req, res)=>{
     const ip = await getIP()
     const user = await User.findOne({
@@ -213,14 +216,20 @@ app.get("/@:username", async(req, res)=>{
              menu = `
                 <button class="btn btn-sm" style="margin-right: 3px;" onclick="location.href='/register'"><strong>Registrar</strong></button>
                 <button class="btn btn-sm" onclick="location.href='/login'"><strong>Login</strong></button>
-             `
+            `
             }else{
+            // changeImage = `
+            //    <button class="btn btn-sm" style="margin-right: 3px;" onclick="location.href='/change-image'"><strong>Alterar Imagem</strong></button>
+            // `
             changeImage = `
-                   <button class="btn btn-sm" style="margin-right: 3px;" onclick="location.href='/change-image'"><strong>Alterar Imagem</strong></button>
-               `
-               editProfile = `
-                   <button class="btn btn-sm" style="margin-right: 3px;" onclick="location.href='/edit-profile'"><strong>Editar Perfil</strong></button>
-               `
+                <a href="/change-image">Alterar Imagem</a>
+            `
+            // editProfile = `
+            //    <button class="btn btn-sm" style="margin-right: 3px;" onclick="location.href='/edit-profile'"><strong>Editar Perfil</strong></button>
+            // `
+            editProfile = `
+                <a href="/edit-profile">Editar Perfil</a>
+            `
             menu = `
                 <button class="btn btn-sm text-decoration-underline" style="margin-right: 3px;" onclick="location.href='/@${currentUser.username}'"><strong>${currentUser.username}</strong></button>
                 <button class="btn btn-sm text-danger text-decoration-underline" onclick="location.href='/logout'"><strong>Logout</strong></button>
@@ -231,7 +240,7 @@ app.get("/@:username", async(req, res)=>{
               user: userProfile[0],
               menu,
               editProfile,
-              chang
+              changeImage,
          })
    }
 })
