@@ -177,6 +177,30 @@ app.post("/register", async(req, res)=>{
     }
 })
 
+app.get("/change-image", async(req, res)=>{
+    const ip = await getIP()
+    const mysql = await connect()
+    const User = mysql.models.User;
+    const user = await User.findOne({
+        where: {
+            address: ip
+        }
+    })
+    if(!user || user === null){
+        return res.status(404).redirect("/login")
+    }else{
+        const menu = `
+            <button class="btn btn-sm text-decoration-underline" style="margin-right: 3px;" onclick="location.href='/@${user.username}'"><strong>${user.username}</strong></button>
+            <button class="btn btn-sm text-danger text-decoration-underline" onclick="location.href='/logout'"><strong>Logout</strong></button>
+        `
+        const userFind = await mysql.query(`SELECT * FROM Users WHERE address = ?`, [ip])
+        return res.status(200).render("change-image", {
+            menu,
+            user: userFind[0]
+        })
+    }
+})
+
 app.get("/logout", async(req, res)=>{
     const ip = await getIP()
     const user = await User.findOne({
