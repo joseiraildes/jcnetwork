@@ -136,6 +136,7 @@ app.get("/register", async(req, res)=>{
 app.post("/register", async(req, res)=>{
     const { username, password, email } = req.body;
     const ip = await getIP()
+    const mysql = await connect()
     const user = await User.findOne({
         where: {
             address: ip
@@ -151,15 +152,26 @@ app.post("/register", async(req, res)=>{
                 `
             })
         }
-        const newUser = await User.create({
-            username: formatName(username),
+        // const newUser = await User.create({
+        //     username: formatName(username),
+        //     password,
+        //     email,
+        //     datetime: date,
+        //     biography: marked("- Olá, você pode editar sua biografia clicando no botão 'Editar Perfil'"),
+        //     address: ip
+        // })
+        const newUser = await mysql.query(`INSERT INTO Users (username, password, email, datetime, biography, address, image, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
+            formatName(username),
             password,
             email,
-            datetime: date,
-            biography: marked("This user has not set a biography yet."),
-            address: ip
-        })
-        return res.status(201).redirect("/login")
+            date,
+            marked("- Olá, você pode editar sua biografia clicando no botão 'Editar Perfil'"),
+            ip,
+            '',
+            new Date(),
+            new Date()
+        ])
+        return res.status(201).redirect("/")
     }else{
         return res.redirect("/")
     }
@@ -176,7 +188,7 @@ app.get("/logout", async(req, res)=>{
         return res.status(404).redirect("/login")
     }else{
         const update = await User.update({
-            address: null
+            address: ''
         }, {
             where: {
                 id: user.id
