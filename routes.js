@@ -16,6 +16,8 @@ app.set('views', path.join(__dirname + "/views"));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+
+app.use(express.static(path.join(__dirname, "public")));
 app.use(express.static(path.join(__dirname, "images")));
 
 app.get("/", async(req, res)=>{
@@ -180,7 +182,7 @@ app.post("/register", async(req, res)=>{
 app.get("/change-image", async(req, res)=>{
     const ip = await getIP()
     const mysql = await connect()
-    const User = mysql.models.User;
+    
     const user = await User.findOne({
         where: {
             address: ip
