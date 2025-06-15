@@ -1,0 +1,21 @@
+<div class="container">
+    <div class="row justify-content-center align-items-center">
+        <div class="col-md-6 card p-4 mt-5 shadow">
+            <h5 class="text-center mb-3">Alterar Imagem de Perfil</h5>
+            <hr><br>
+            <div class="text-center">
+                <img class="image-preview" style="border-radius: 50%" width="50%" height="25%" data-image-preview></img>
+            </div>
+            <form method="POST" action="/change-image" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="image" class="form-label">Imagem</label>
+                    <input type="file" class="form-control" id="image" name="image" required data-image-input>
+                </div>
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-dark"><strong>Alterar Imagem</strong></button>
+                </div>
+        </div>
+    </div>
+</div>
+
+<script src="/static/js/changeImage.js"></script>
