@@ -1,4 +1,4 @@
-const mysql = require("mysql2")
+const mysql = require("mysql2");
 require("dotenv").config()
 async function connect() {
     const connection = await mysql.createPool({
