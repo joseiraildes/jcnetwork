@@ -10,6 +10,7 @@ const { marked } = require("marked");
 const connect = require("./mysql/config.js");
 const multer = require("multer");
 const { diskStorage } = require("multer");
+const upload = require("./multer.js");
 
 
 app.engine('hbs', hbs.engine({ extname: ".hbs" }));
@@ -18,29 +19,29 @@ app.set('views', path.join(__dirname + "/views"));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-
+app.use(express.static(path.join(__dirname, "uploads")))
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.static(path.join(__dirname, "images")));
 
 
 
-const storage = diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, "uploads/");
-    },
+// const storage = diskStorage({
+//     destination: (req, file, cb) => {
+//         cb(null, "uploads/");
+//     },
 
-    filename: (req, file, cb) => {
-        const fileExtension = file.originalname.split(".")[1]
+//     filename: (req, file, cb) => {
+//         const fileExtension = file.originalname.split(".")[1]
 
-        const newFileName = require('crypto')
-            .randomBytes(64)
-            .toString('hex');
+//         const newFileName = require('crypto')
+//             .randomBytes(64)
+//             .toString('hex');
 
-        cb(null, `${newFileName}.${fileExtension}`);
-    }
-})
+//         cb(null, `${newFileName}.${fileExtension}`);
+//     }
+// })
 
-const upload = multer({ storage })
+// const upload = multer({ storage })
 
 app.get("/", async(req, res)=>{
     const ip = await getIP()
@@ -225,9 +226,47 @@ app.get("/change-image", async(req, res)=>{
     }
 })
 
+
 app.post("/change-image", upload.single("image"), async(req, res)=>{
+    const ip = await getIP()
+    const mysql = await connect()
     
-})
+    const user = await User.findOne({
+        where: {
+            address: ip
+        }
+    })
+    if(!user || user === null){
+        return res.status(404).redirect("/login")
+    }
+    else{
+        const menu = `
+            <button class="btn btn-sm text-decoration-underline" style="margin-right: 3px;" onclick="location.href='/@${user.username}'"><strong>${user.username}</strong></button>
+            <button class="btn btn-sm text-danger text-decoration-underline" onclick="location.href='/logout'"><strong>Logout</strong></button>
+        `
+        if(!req.file){
+            return res.status(400).render("change-image", {
+                menu,
+                message: `
+                <div class="alert alert-danger" role="alert">
+                    Por favor, selecione uma imagem.
+                </div>
+                `
+            })
+        }
+        const update = await User.update({
+            image: req.file.filename
+        }, {
+            where: {
+                id: user.id
+            }
+        })
+        console.log(update)
+        return res.status(200).redirect(`/@${user.username}`)
+    }
+}
+)
+
 
 app.get("/logout", async(req, res)=>{
     const ip = await getIP()
@@ -312,7 +351,8 @@ app.get("/@:username", async(req, res)=>{
 app.listen(3000, (err)=>{
     if(err){
         console.log({
-            message: "New undefined error"
+            message: "New undefined error",
+            err
         })
     }else{
         console.log({
