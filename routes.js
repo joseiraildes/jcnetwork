@@ -11,7 +11,7 @@ const connect = require("./mysql/config.js");
 const multer = require("multer");
 const { diskStorage } = require("multer");
 const upload = require("./multer.js");
-
+const Posts = require("./models/Posts.js");
 
 app.engine('hbs', hbs.engine({ extname: ".hbs" }));
 app.set('view engine', 'hbs');
@@ -338,7 +338,7 @@ app.get("/@:username", async(req, res)=>{
                 <button class="btn btn-sm text-danger text-decoration-underline" onclick="location.href='/logout'"><strong>Logout</strong></button>
             `
          }
-         const userProfile = await mysql.query(`SELECT * FROM Users WHERE id = ?`, [user.id])
+         const userProfile = await mysql.query(`SELECT * FROM Users WHERE username = ?`, [username])
          return res.status(200).render("profile", {
               user: userProfile[0],
               menu,
@@ -346,6 +346,84 @@ app.get("/@:username", async(req, res)=>{
               changeImage,
          })
    }
+})
+
+app.get("/@:username/posts", async(req, res)=>{
+    const mysql = await connect()
+   const { username } = req.params;
+   const user = await User.findOne({
+       where: {
+           username: formatName(username)
+       }
+   })
+   if(!user || user === null){
+       return res.redirect("/login")
+   }else{
+         const ip = await getIP()
+         const currentUser = await User.findOne({
+              where: {
+                address: ip
+              }
+         })
+
+         let menu = "";
+         let editProfile = "";
+         let changeImage = "";
+         if(!currentUser || currentUser === null){
+            changeImage = ''
+            editProfile = ''
+             menu = `
+                <button class="btn btn-sm" style="margin-right: 3px;" onclick="location.href='/register'"><strong>Registrar</strong></button>
+                <button class="btn btn-sm" onclick="location.href='/login'"><strong>Login</strong></button>
+            `
+            }else{
+            // changeImage = `
+            //    <button class="btn btn-sm" style="margin-right: 3px;" onclick="location.href='/change-image'"><strong>Alterar Imagem</strong></button>
+            // `
+            changeImage = `
+                <a href="/change-image">Alterar Imagem</a>
+            `
+            // editProfile = `
+            //    <button class="btn btn-sm" style="margin-right: 3px;" onclick="location.href='/edit-profile'"><strong>Editar Perfil</strong></button>
+            // `
+            editProfile = `
+                <a href="/edit-profile">Editar Perfil</a>
+            `
+            menu = `
+                <button class="btn btn-sm text-decoration-underline" style="margin-right: 3px;" onclick="location.href='/@${currentUser.username}'"><strong>${currentUser.username}</strong></button>
+                <button class="btn btn-sm text-danger text-decoration-underline" onclick="location.href='/logout'"><strong>Logout</strong></button>
+            `
+         }
+         const userProfile = await mysql.query(`SELECT * FROM Users WHERE username = '${username}'`)
+         const posts = await mysql.query(`SELECT * FROM Posts WHERE name = '${username}' ORDER BY id DESC`)
+         return res.status(200).render("posts", {
+              user: userProfile[0],
+              menu,
+              editProfile,
+              changeImage,
+              posts: posts[0]
+         })
+   }
+})
+
+app.get("/publicar", async(req, res)=>{
+    const ip = await getIP()
+    const user = await User.findOne({
+        where: {
+            address: ip
+        }
+    })
+    if(!user || user === null){
+        return res.status(404).redirect("/login")
+    }else{
+        const menu = `
+            <button class="btn btn-sm text-decoration-underline" style="margin-right: 3px;" onclick="location.href='/@${user.username}'"><strong>${user.username}</strong></button>
+            <button class="btn btn-sm text-danger text-decoration-underline" onclick="location.href='/logout'"><strong>Logout</strong></button>
+        `
+        return res.status(200).render("publish", {
+            menu
+        })
+    }
 })
 
 app.listen(3000, (err)=>{
