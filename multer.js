@@ -19,4 +19,7 @@ const storage = diskStorage({
 
 const upload = multer({ storage })
 
+module.exports = {
+    upload
+}
 // export the upload middleware

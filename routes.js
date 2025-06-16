@@ -225,6 +225,10 @@ app.get("/change-image", async(req, res)=>{
     }
 })
 
+app.post("/change-image", upload.single("image"), async(req, res)=>{
+    
+})
+
 app.get("/logout", async(req, res)=>{
     const ip = await getIP()
     const user = await User.findOne({
