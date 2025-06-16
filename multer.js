@@ -3,7 +3,7 @@ const { diskStorage } = require("multer");
 
 const storage = diskStorage({
     destination: (req, file, cb) => {
-        cb(null, "images/");
+        cb(null, "uploads/");
     },
 
     filename: (req, file, cb) => {
@@ -19,4 +19,4 @@ const storage = diskStorage({
 
 const upload = multer({ storage })
 
-module.exports = upload;
+// export the upload middleware

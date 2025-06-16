@@ -8,8 +8,8 @@ const formatName = require("./funcs/name.js");
 const date = require("./date/config.js");
 const { marked } = require("marked");
 const connect = require("./mysql/config.js");
-
-
+const multer = require("multer");
+const { diskStorage } = require("multer");
 
 
 app.engine('hbs', hbs.engine({ extname: ".hbs" }));
@@ -21,6 +21,26 @@ app.use(express.json());
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.static(path.join(__dirname, "images")));
+
+
+
+const storage = diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, "uploads/");
+    },
+
+    filename: (req, file, cb) => {
+        const fileExtension = file.originalname.split(".")[1]
+
+        const newFileName = require('crypto')
+            .randomBytes(64)
+            .toString('hex');
+
+        cb(null, `${newFileName}.${fileExtension}`);
+    }
+})
+
+const upload = multer({ storage })
 
 app.get("/", async(req, res)=>{
     const ip = await getIP()
