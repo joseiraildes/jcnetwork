@@ -36,7 +36,8 @@
                 </p>
             </div>
             <hr>
-            <div class="container">
+{{/each}}
+            {{!-- <div class="container">
                 <div class="row">
                     <div class="col-md-12">
                         <div class="card">
@@ -62,7 +63,7 @@
                     </div>
         {{/each}}
                 </div>
-            </div>
+            </div> --}}
         </div>
     </div>
 </div>
@@ -89,7 +90,12 @@
                             </div>
                         {{/each}}
                     {{else}}
-                        <p class="text-muted">Nenhuma publicação encontrada.</p>
+                        <div class="text-center">
+                            <p class="text-muted">Nenhuma publicação encontrada.</p>
+                            <button class="btn btn-secondary" onclick="location.href='/publicar'">
+                                Fazer publicação
+                            </button>
+                        </div>
                     {{/if}}
                 </div>
             </div>
