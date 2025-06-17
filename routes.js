@@ -427,46 +427,108 @@ app.get("/publicar", async(req, res)=>{
 })
 
 app.post("/publicar", upload.single("image"), async(req, res)=>{
-    const file = req.file
-    const { title, content } = req.body;
-    console.log(req.body)
-    // const ip = await getIP()
-    // const user = await User.findOne({
-    //     where: {
-    //         address: ip
-    //     }
-    // })
-    // if(!user || user === null){
-    //     return res.status(404).redirect("/login")
-    // }else{
-    //     if(!req.file){
-    //         return res.status(400).render("publish", {
-    //             message: `
-    //             <div class="alert alert-danger" role="alert">
-    //                 Por favor, selecione uma imagem.
-    //             </div>
-    //             `
-    //         })
-    //     }
-    //     const { title, content } = req.body;
-    //     if(!title || !content){
-    //         return res.status(400).render("publish", {
-    //             message: `
-    //             <div class="alert alert-danger" role="alert">
-    //                 Por favor, preencha todos os campos.
-    //             </div>
-    //             `
-    //         })
-    //     }
-    //     const post = await Posts.create({
-    //         name: user.username,
-    //         title,
-    //         content,
-    //         image: req.file.filename,
-    //         datetime: date
-    //     })
-    //     return res.status(201).redirect(`/@${user.username}/posts`)
-    // }
+    // const file = req.file
+    // const { title, content } = req.body;
+    // console.log(req.body)
+    // console.log(file)
+    const ip = await getIP()
+    const user = await User.findOne({
+        where: {
+            address: ip
+        }
+    })
+    if(!user || user === null){
+        return res.status(404).redirect("/login")
+    }else{
+        // if(!req.file){
+        //     return res.status(400).render("publish", {
+        //         message: `
+        //         <div class="alert alert-danger" role="alert">
+        //             Por favor, selecione uma imagem.
+        //         </div>
+        //         `
+        //     })
+        // }
+        const { title, content } = req.body;
+        if(!title || !content){
+            return res.status(400).render("publish", {
+                message: `
+                <div class="alert alert-danger" role="alert">
+                    Por favor, preencha todos os campos.
+                </div>
+                `
+            })
+        }
+        const post = await Posts.create({
+            name: user.username,
+            title,
+            content: marked(content),
+            post_image: req.file.filename,
+            datetime: date,
+            post_like: 1
+        })
+        return res.status(201).redirect(`/@${user.username}/${post.id}`)
+    }
+})
+
+app.get("/@:username/:id", async(req, res)=>{
+    const mysql = await connect()
+   const { username, id } = req.params;
+   const user = await User.findOne({
+       where: {
+           username: formatName(username)
+       }
+   })
+    if(!user || user === null){
+         return res.redirect("/login")
+    }
+    else{
+        const ip = await getIP()
+        const currentUser = await User.findOne({
+            where: {
+                address: ip
+            }
+        })
+
+        let menu = "";
+        let editProfile = "";
+        let changeImage = "";
+        if(!currentUser || currentUser === null){
+            changeImage = ''
+            editProfile = ''
+            menu = `
+                <button class="btn btn-sm" style="margin-right: 3px;" onclick="location.href='/register'"><strong>Registrar</strong></button>
+                <button class="btn btn-sm" onclick="location.href='/login'"><strong>Login</strong></button>
+            `
+            }else{
+            // changeImage = `
+            //    <button class="btn btn-sm" style="margin-right: 3px;" onclick="location.href='/change-image'"><strong>Alterar Imagem</strong></button>
+            // `
+            changeImage = `
+                <a href="/change-image">Alterar Imagem</a>
+            `
+            // editProfile = `
+            //    <button class="btn btn-sm" style="margin-right: 3px;" onclick="location.href='/edit-profile'"><strong>Editar Perfil</strong></button>
+            // `
+            editProfile = `
+                <a href="/edit-profile">Editar Perfil</a>
+            `
+            menu = `
+                <button class="btn btn-sm text-decoration-underline" style="margin-right: 3px;" onclick="location.href='/@${currentUser.username}'"><strong>${currentUser.username}</strong></button>
+                <button class="btn btn-sm text-danger text-decoration-underline" onclick="location.href='/logout'"><strong>Logout</strong></button>
+            `
+        }
+        const userProfile = await mysql.query(`SELECT * FROM Users WHERE username = '${username}'`)
+        const post = await mysql.query(`SELECT * FROM Posts WHERE id = ${id}`)
+        return res.status(200).render("post", {
+            user: userProfile[0],
+            menu,
+            editProfile,
+            changeImage,
+            post: post[0][0]
+        })
+    }
+
 })
 
 app.listen(3000, (err)=>{
