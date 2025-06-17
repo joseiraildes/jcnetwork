@@ -426,6 +426,49 @@ app.get("/publicar", async(req, res)=>{
     }
 })
 
+app.post("/publicar", upload.single("image"), async(req, res)=>{
+    const file = req.file
+    const { title, content } = req.body;
+    console.log(req.body)
+    // const ip = await getIP()
+    // const user = await User.findOne({
+    //     where: {
+    //         address: ip
+    //     }
+    // })
+    // if(!user || user === null){
+    //     return res.status(404).redirect("/login")
+    // }else{
+    //     if(!req.file){
+    //         return res.status(400).render("publish", {
+    //             message: `
+    //             <div class="alert alert-danger" role="alert">
+    //                 Por favor, selecione uma imagem.
+    //             </div>
+    //             `
+    //         })
+    //     }
+    //     const { title, content } = req.body;
+    //     if(!title || !content){
+    //         return res.status(400).render("publish", {
+    //             message: `
+    //             <div class="alert alert-danger" role="alert">
+    //                 Por favor, preencha todos os campos.
+    //             </div>
+    //             `
+    //         })
+    //     }
+    //     const post = await Posts.create({
+    //         name: user.username,
+    //         title,
+    //         content,
+    //         image: req.file.filename,
+    //         datetime: date
+    //     })
+    //     return res.status(201).redirect(`/@${user.username}/posts`)
+    // }
+})
+
 app.listen(3000, (err)=>{
     if(err){
         console.log({
