@@ -1,0 +1,28 @@
+<div class="container mt-3">
+  <div class="card">
+    <div class="card-header">
+      {{!-- <h5 class="card-title">{{title}}</h5>
+      <p class="card-text text-muted">Publicado por <a href="/@{{author.username}}">{{author.username}}</a> em {{datetime}}</p> --}}
+      <div class="d-flex align-items-center justify-content-center align-self-center">
+        {{#each user}}
+          <img src="/{{image}}" alt="" height="30px" width="30px" class="rounded-circle me-2">
+          <span class="text-muted"><a href="/@{{username}}">{{username}}</a></span>
+        {{/each}}
+      </div>
+    </div>
+    <div class="card-body">
+      {{#each post}}
+        <div class="card-title">
+          <h3>
+            {{title}}
+          </h3>
+        </div>
+        <p class="card-text text-muted">Publicado em: {{datetime}}</p>
+        {{#if post_image}}
+          <img src="/{{post_image}}" alt="Imagem do post" class="img-fluid mb-3">
+        {{/if}}
+        {{{content}}}
+      {{/each}}
+    </div>
+  </div>
+</div>
