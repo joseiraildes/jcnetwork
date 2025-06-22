@@ -1,5 +1,5 @@
 <div class="container mt-3">
-  <div class="card">
+  <div class="card shadow-sm">
     <div class="card-header">
       {{!-- <h5 class="card-title">{{title}}</h5>
       <p class="card-text text-muted">Publicado por <a href="/@{{author.username}}">{{author.username}}</a> em {{datetime}}</p> --}}
@@ -23,6 +23,41 @@
         {{/if}}
         {{{content}}}
       {{/each}}
+    </div>
+    <div class="card-footer">
+      <div class="d-grid gap-2">
+        <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+          Responder
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{!-- Modal for reply --}}
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="staticBackdropLabel">Responder com Comentário</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        {{#each post}}
+          <form action="/{{name}}/post/{{id}}/reply" method="post">
+            <div class="mb-3">
+              <label for="replyContent" class="form-label">Seu comentário</label>
+              <textarea class="form-control" id="replyContent" name="content" rows="3" required></textarea>
+            </div>
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-primary">Enviar</button>
+            </div>
+          </form>
+        {{/each}}
+      </div>
+      <div class="modal-footer">
+        <span class="text-muted">&copy; José Cipriano</span>
+      </div>
     </div>
   </div>
 </div>
