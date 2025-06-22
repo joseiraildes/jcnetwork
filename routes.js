@@ -313,12 +313,12 @@ app.get("/@:username", async(req, res)=>{
          let changeImage = "";
 
 
-         if(!currentUser || currentUser === null){
+         if(!currentUser || currentUser["id"] !== user["id"]){
             changeImage = ''
             editProfile = ''
              menu = `
-                <button class="btn btn-sm" style="margin-right: 3px;" onclick="location.href='/register'"><strong>Registrar</strong></button>
-                <button class="btn btn-sm" onclick="location.href='/login'"><strong>Login</strong></button>
+                <button class="btn btn-sm text-decoration-underline" style="margin-right: 3px;" onclick="location.href='/@${currentUser.username}'"><strong>${currentUser.username}</strong></button>
+                <button class="btn btn-sm text-danger text-decoration-underline" onclick="location.href='/logout'"><strong>Logout</strong></button>
             `
             }else{
             // changeImage = `
@@ -369,12 +369,12 @@ app.get("/@:username/posts", async(req, res)=>{
          let menu = "";
          let editProfile = "";
          let changeImage = "";
-         if(!currentUser || currentUser === null){
+         if(!currentUser || currentUser["id"] !== user["id"]){
             changeImage = ''
             editProfile = ''
              menu = `
-                <button class="btn btn-sm" style="margin-right: 3px;" onclick="location.href='/register'"><strong>Registrar</strong></button>
-                <button class="btn btn-sm" onclick="location.href='/login'"><strong>Login</strong></button>
+                <button class="btn btn-sm text-decoration-underline" style="margin-right: 3px;" onclick="location.href='/@${currentUser.username}'"><strong>${currentUser.username}</strong></button>
+                <button class="btn btn-sm text-danger text-decoration-underline" onclick="location.href='/logout'"><strong>Logout</strong></button>
             `
             }else{
             // changeImage = `
@@ -463,7 +463,7 @@ app.post("/publicar", upload.single("image"), async(req, res)=>{
             name: user.username,
             title,
             content: marked(content),
-            post_image: req.file.filename,
+            post_image: req.file ? req.file.filename : '',
             datetime: date,
             post_like: 1
         })
@@ -471,7 +471,7 @@ app.post("/publicar", upload.single("image"), async(req, res)=>{
     }
 })
 
-app.get("/@:username/:id", async(req, res)=>{
+app.get("/@:username/post/:id", async(req, res)=>{
     const mysql = await connect()
    const { username, id } = req.params;
    const user = await User.findOne({
@@ -493,12 +493,12 @@ app.get("/@:username/:id", async(req, res)=>{
         let menu = "";
         let editProfile = "";
         let changeImage = "";
-        if(!currentUser || currentUser === null){
+        if(!currentUser || currentUser["id"] !== user["id"]){
             changeImage = ''
             editProfile = ''
-            menu = `
-                <button class="btn btn-sm" style="margin-right: 3px;" onclick="location.href='/register'"><strong>Registrar</strong></button>
-                <button class="btn btn-sm" onclick="location.href='/login'"><strong>Login</strong></button>
+             menu = `
+                <button class="btn btn-sm text-decoration-underline" style="margin-right: 3px;" onclick="location.href='/@${currentUser.username}'"><strong>${currentUser.username}</strong></button>
+                <button class="btn btn-sm text-danger text-decoration-underline" onclick="location.href='/logout'"><strong>Logout</strong></button>
             `
             }else{
             // changeImage = `
@@ -525,7 +525,7 @@ app.get("/@:username/:id", async(req, res)=>{
             menu,
             editProfile,
             changeImage,
-            post: post[0][0]
+            post: post[0]
         })
     }
 
