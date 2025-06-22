@@ -531,6 +531,30 @@ app.get("/@:username/post/:id", async(req, res)=>{
 
 })
 
+app.get("/edit-profile", async(req, res)=>{
+    const ip = await getIP()
+    const mysql = await connect()
+    
+    const user = await User.findOne({
+        where: {
+            address: ip
+        }
+    })
+    if(!user || user === null){
+        return res.status(404).redirect("/login")
+    }else{
+        const menu = `
+            <button class="btn btn-sm text-decoration-underline" style="margin-right: 3px;" onclick="location.href='/@${user.username}'"><strong>${user.username}</strong></button>
+            <button class="btn btn-sm text-danger text-decoration-underline" onclick="location.href='/logout'"><strong>Logout</strong></button>
+        `
+        const userFind = await mysql.query(`SELECT * FROM Users WHERE address = ?`, [ip])
+        return res.status(200).render("edit-profile", {
+            menu,
+            user: userFind[0]
+        })
+    }
+})
+
 app.listen(3000, (err)=>{
     if(err){
         console.log({
