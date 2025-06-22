@@ -555,6 +555,30 @@ app.get("/edit-profile", async(req, res)=>{
     }
 })
 
+app.post("/edit-profile", async(req, res)=>{
+    const ip = await getIP()
+    const mysql = await connect()
+    
+    const user = await User.findOne({
+        where: {
+            address: ip
+        }
+    })
+    if(!user || user === null){
+        return res.status(404).redirect("/login")
+    }else{
+        const { biography } = req.body;
+        if(!biography){
+            return res.status(500).redirect(`/@${user.username}`)
+        }
+        const update = await mysql.query(`UPDATE Users SET biography = ? WHERE id = ?`, [
+            marked(biography),
+            user.id
+        ])
+        return res.status(200).redirect(`/@${formatName(user.username)}`)
+    }
+})
+
 app.listen(3000, (err)=>{
     if(err){
         console.log({
